@@ -1,0 +1,12 @@
+name = Drupal church people
+description = Modules for people for Drupal Church
+core = 7.x
+package = Church
+
+version = "7.x-0.1"
+project = "Drupal church"
+
+dependencies[] = entity
+dependencies[] = views
+
+files[] = church_people.controller.inc

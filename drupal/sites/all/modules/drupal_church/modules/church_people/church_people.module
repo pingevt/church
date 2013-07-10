@@ -1,0 +1,342 @@
+<?php
+
+/**
+* Implements hook_entity_info().
+*/
+function church_people_entity_info() {
+  $return = array(
+    'church_people' => array(
+      'label' => t('People'),
+      'entity class' => 'ChurchPeople',
+      'controller class' => 'ChurchPeopleController',
+      'base table' => 'church_people',
+      'fieldable' => TRUE,
+      'entity keys' => array(
+        'id' => 'cpid',
+        'bundle' => 'type',
+      ),
+      'bundle keys' => array(
+        'bundle' => 'type',
+      ),
+      'bundles' => array(),
+      'load hook' => 'church_people_load',
+      'view modes' => array(
+        'full' => array(
+          'label' => t('Default'),
+          'custom settings' => FALSE,
+        ),
+      ),
+      'label callback' => 'entity_class_label',
+      'uri callback' => 'entity_class_uri',
+      'module' => 'church_people',
+      'access callback' => 'church_people_access',
+    ),
+  );
+
+  $return['church_people_type'] = array(
+    'label' => t('People Type'),
+    'entity class' => 'ChurchPeopleType',
+    'controller class' => 'ChurchPeopleTypeController',
+    'base table' => 'church_people_type',
+    'fieldable' => FALSE,
+    'bundle of' => 'church_people',
+    'exportable' => TRUE,
+    'entity keys' => array(
+      'id' => 'id',
+      'name' => 'type',
+      'label' => 'label',
+    ),
+    'module' => 'church_people',
+    // Enable the entity API's admin UI.
+    'admin ui' => array(
+      'path' => 'admin/church/people/people-types',
+      'file' => 'church_people.admin.inc',
+      'controller class' => 'ChurchPeopleTypeUIController',
+    ),
+    'access callback' => 'church_people_type_access',
+  );
+  return $return;
+}
+
+/**
+* Implements hook_entity_info_alter().
+*/
+function church_people_entity_info_alter(&$entity_info) {
+  foreach (church_people_types() as $type => $info) {
+    $entity_info['church_people']['bundles'][$type] = array(
+      'label' => $info->label,
+      'admin' => array(
+        'path' => 'admin/church/people/people-types/manage/%church_people_type',
+        'real path' => 'admin/church/people/people-types/manage/' . $type,
+        'bundle argument' => 4,
+      ),
+    );
+  }
+}
+
+/**
+* Implements hook_menu().
+*/
+function church_people_menu() {
+  $items = array();
+  $items['admin/church/people/add'] = array(
+    'title' => 'Add person',
+    'page callback' => 'church_people_admin_add_page',
+    'access arguments' => array('administer church_people entities'),
+    'file' => 'church_people.admin.inc',
+    'type' => MENU_LOCAL_ACTION,
+    'tab_parent' => 'admin/church/people',
+    'tab_root' => 'admin/church/people',
+  );
+
+  $church_people_uri = 'admin/church/people/%church_people';
+  $church_people_uri_argument_position = 1;
+
+  $items[$church_people_uri] = array(
+    'title callback' => 'entity_label',
+    'title arguments' => array('church_people', $church_people_uri_argument_position),
+    'page callback' => 'church_people_view',
+    'page arguments' => array($church_people_uri_argument_position),
+    'access callback' => 'entity_access',
+    'access arguments' => array('view', 'church_people', $church_people_uri_argument_position),
+    'file' => 'church_people.pages.inc',
+  );
+
+  $items[$church_people_uri . '/view'] = array(
+    'title' => 'View',
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+    'weight' => -10,
+  );
+
+  $items[$church_people_uri . '/delete'] = array(
+    'title' => 'Delete church_people',
+    'title callback' => 'church_people_label',
+    'title arguments' => array($church_people_uri_argument_position),
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('church_people_delete_form', $church_people_uri_argument_position),
+    'access callback' => 'entity_access',
+    'access arguments' => array('edit', 'church_people', $church_people_uri_argument_position),
+    'file' => 'church_people.admin.inc',
+  );
+
+  $items[$church_people_uri . '/edit'] = array(
+    'title' => 'Edit',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('church_people_form', $church_people_uri_argument_position),
+    'access callback' => 'entity_access',
+    'access arguments' => array('edit', 'church_people', $church_people_uri_argument_position),
+    'file' => 'church_people.admin.inc',
+    'type' => MENU_LOCAL_TASK,
+    'context' => MENU_CONTEXT_PAGE | MENU_CONTEXT_INLINE,
+  );
+
+  foreach (church_people_types() as $type => $info) {
+    $items['admin/church/people/add/' . $type] = array(
+      'title' => 'Add church_people',
+      'page callback' => 'church_people_add',
+      'page arguments' => array(2),
+      'access callback' => 'entity_access',
+      'access arguments' => array('create', 'church_people', $type),
+      'file' => 'church_people.admin.inc',
+    );
+  }
+
+  $items['admin/church/people/%church_people_type/delete'] = array(
+    'title' => 'Delete',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('church_people_type_form_delete_confirm', 4),
+    'access arguments' => array('administer church_people types'),
+    'weight' => 1,
+    'type' => MENU_NORMAL_ITEM,
+    'file' => 'church_people.admin.inc',
+  );
+
+  return $items;
+}
+
+/**
+* Implements hook_permission().
+*/
+function church_people_permission() {
+  $permissions = array(
+    'administer church_people types' => array(
+      'title' => t('Administer church_people types'),
+      'description' => t('Allows users to configure church_people types and their fields.'),
+      'restrict access' => TRUE,
+    ),
+    'create church_people entities' => array(
+      'title' => t('Create church_people'),
+      'description' => t('Allows users to create church_people.'),
+      'restrict access' => TRUE,
+    ),
+    'view church_people entities' => array(
+      'title' => t('View church_people'),
+      'description' => t('Allows users to view church_people.'),
+      'restrict access' => TRUE,
+    ),
+    'edit any church_people entities' => array(
+      'title' => t('Edit any church_people'),
+      'description' => t('Allows users to edit any church_people.'),
+      'restrict access' => TRUE,
+    ),
+    'edit own church_people entities' => array(
+      'title' => t('Edit own church_people'),
+      'description' => t('Allows users to edit own church_people.'),
+      'restrict access' => TRUE,
+    ),
+  );
+  return $permissions;
+}
+
+/**
+ * Implements hook_entity_property_info_alter().
+ */
+function church_people_entity_property_info_alter(&$info) {
+  $properties = &$info['church_people']['properties'];
+  $properties['created'] = array(
+    'label' => t("Date created"),
+    'type' => 'date',
+    'description' => t("The date the person was posted."),
+    'setter callback' => 'entity_property_verbatim_set',
+    'setter permission' => 'administer nodes',
+    'schema field' => 'created',
+  );
+  $properties['changed'] = array(
+    'label' => t("Date changed"),
+    'type' => 'date',
+    'schema field' => 'changed',
+    'description' => t("The date the person was most recently updated."),
+  );
+  $properties['uid'] = array(
+    'label' => t("Author"),
+    'type' => 'user',
+    'description' => t("The author of the church_people."),
+    'setter callback' => 'entity_property_verbatim_set',
+    'setter permission' => 'administer church_people entities',
+    'required' => TRUE,
+    'schema field' => 'uid',
+  );
+}
+
+
+
+/*******************************************************************************
+ ***************************** Church People API's *****************************
+ ******************************************************************************/
+
+/**
+* Access callback for Task.
+*/
+function church_people_access($op, $task, $account = NULL, $entity_type = NULL) {
+  global $user;
+  if (!isset($account)) {
+    $account = $user;
+  }
+  switch ($op) {
+    case 'create':
+      return user_access('administer church_people entities', $account)
+          || user_access('create church_people entities', $account);
+    case 'view':
+      return user_access('administer church_people entities', $account)
+          || user_access('view church_people entities', $account);
+    case 'edit':
+      return user_access('administer church_people entities')
+          || user_access('edit any church_people entities')
+          || (user_access('edit own church_people entities') && ($task->uid == $account->uid));
+  }
+}
+
+/**
+ * Load a task.
+ */
+function church_people_load($cpid, $reset = FALSE) {
+  $church_people = church_people_load_multiple(array($cpid), array(), $reset);
+  return reset($church_people);
+}
+
+/**
+ * Load multiple tasks based on certain conditions.
+ */
+function church_people_load_multiple($cpids = array(), $conditions = array(), $reset = FALSE) {
+  return entity_load('church_people', $cpids, $conditions, $reset);
+}
+
+/**
+ * Save task.
+ */
+function church_people_save($church_people) {
+  entity_save('church_people', $church_people);
+}
+
+/**
+ * Delete single task.
+ */
+function church_people_delete($church_people) {
+  entity_delete('church_people', entity_id('church_people' ,$church_people));
+}
+
+/**
+ * Delete multiple tasks.
+ */
+function church_people_delete_multiple($church_people_ids) {
+  entity_delete_multiple('church_people', $church_people_ids);
+}
+
+
+/*******************************************************************************
+ ****************************** Task Type API's ********************************
+ ******************************************************************************/
+
+/**
+ * Access callback for task Type.
+ */
+function church_people_type_access($op, $entity = NULL) {
+  return user_access('administer church_people types');
+}
+
+/**
+ * Load task Type.
+ */
+function church_people_type_load($church_people_type) {
+  return church_people_types($church_people_type);
+}
+
+/**
+ * List of task Types.
+ */
+function church_people_types($type_name = NULL) {
+  $types = entity_load_multiple_by_name('church_people_type', isset($type_name) ? array($type_name) : FALSE);
+  return isset($type_name) ? reset($types) : $types;
+}
+
+/**
+ * Save task type entity.
+ */
+function church_people_type_save($task_type) {
+  entity_save('church_people_type', $task_type);
+}
+
+/**
+ * Delete single case type.
+ */
+function church_people_type_delete($task_type) {
+  entity_delete('church_people_type', entity_id('church_people_type', $task_type));
+}
+
+/**
+ * Delete multiple case types.
+ */
+function church_people_type_delete_multiple($task_type_ids) {
+  entity_delete_multiple('church_people_type', $task_type_ids);
+}
+
+/**
+  * Implements hook_views_api().
+  */
+function church_people_views_api() {
+  return array(
+    'api' => 3,
+    'path' => drupal_get_path('module', 'church_people'),
+  );
+}
+
