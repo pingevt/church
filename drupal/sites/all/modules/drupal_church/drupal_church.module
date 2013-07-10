@@ -10,5 +10,11 @@ function drupal_church_menu() {
     'type' => MENU_NORMAL_ITEM,
   );
 
+  $items['admin/church/configure'] = array(
+    'title' => 'Configure Church Settings',
+    'access arguments' => array(TRUE),
+    'weight' => 100,
+  );
+
   return $items;
 }

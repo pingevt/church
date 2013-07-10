@@ -30,6 +30,13 @@ function church_people_entity_info() {
       'uri callback' => 'entity_class_uri',
       'module' => 'church_people',
       'access callback' => 'church_people_access',
+
+      /*
+      'admin ui' => array(
+        'path' => 'admin/church/configure/people',
+        'file' => 'church_people.admin.inc',
+        'controller class' => 'ChurchPeopleUIController',
+      ),*/
     ),
   );
 
@@ -49,7 +56,7 @@ function church_people_entity_info() {
     'module' => 'church_people',
     // Enable the entity API's admin UI.
     'admin ui' => array(
-      'path' => 'admin/church/people/people-types',
+      'path' => 'admin/church/configure/people-types',
       'file' => 'church_people.admin.inc',
       'controller class' => 'ChurchPeopleTypeUIController',
     ),
@@ -66,12 +73,18 @@ function church_people_entity_info_alter(&$entity_info) {
     $entity_info['church_people']['bundles'][$type] = array(
       'label' => $info->label,
       'admin' => array(
-        'path' => 'admin/church/people/people-types/manage/%church_people_type',
-        'real path' => 'admin/church/people/people-types/manage/' . $type,
-        'bundle argument' => 4,
+        'path' => 'admin/church/configure/people-types/manage/%church_people_type',
+        'real path' => 'admin/church/configure/people-types/manage/' . $type,
+        'bundle argument' => 5,
       ),
     );
   }
+}
+
+function church_people_menu_alter($items) {
+  //print '<pre>';
+  //print_r($items);
+  //die();
 }
 
 /**
@@ -79,17 +92,18 @@ function church_people_entity_info_alter(&$entity_info) {
 */
 function church_people_menu() {
   $items = array();
-  $items['admin/church/people/add'] = array(
+
+  $items['admin/church/configure/people/add'] = array(
     'title' => 'Add person',
     'page callback' => 'church_people_admin_add_page',
     'access arguments' => array('administer church_people entities'),
     'file' => 'church_people.admin.inc',
     'type' => MENU_LOCAL_ACTION,
-    'tab_parent' => 'admin/church/people',
-    'tab_root' => 'admin/church/people',
+    'tab_parent' => 'admin/church/configure',
+    'tab_root' => 'admin/church/configure',
   );
 
-  $church_people_uri = 'admin/church/people/%church_people';
+  $church_people_uri = 'admin/church/configure/people/%church_people';
   $church_people_uri_argument_position = 1;
 
   $items[$church_people_uri] = array(
@@ -131,17 +145,17 @@ function church_people_menu() {
   );
 
   foreach (church_people_types() as $type => $info) {
-    $items['admin/church/people/add/' . $type] = array(
-      'title' => 'Add church_people',
+    $items['admin/church/configure/people/add/' . $type] = array(
+      'title' => 'Add '. $type,
       'page callback' => 'church_people_add',
-      'page arguments' => array(2),
+      'page arguments' => array(5),
       'access callback' => 'entity_access',
       'access arguments' => array('create', 'church_people', $type),
       'file' => 'church_people.admin.inc',
     );
   }
 
-  $items['admin/church/people/%church_people_type/delete'] = array(
+  $items['admin/church/configure/people/%church_people_type/delete'] = array(
     'title' => 'Delete',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('church_people_type_form_delete_confirm', 4),
@@ -329,6 +343,8 @@ function church_people_type_delete($task_type) {
 function church_people_type_delete_multiple($task_type_ids) {
   entity_delete_multiple('church_people_type', $task_type_ids);
 }
+
+
 
 /**
   * Implements hook_views_api().

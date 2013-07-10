@@ -22,6 +22,13 @@ function church_people_schema() {
         'not null' => TRUE,
         'default' => '',
       ),
+      'title' => array(
+        'description' => 'The title of the person.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
       'uid' => array(
         'description' => 'ID of Drupal user creator.',
         'type' => 'int',
@@ -79,13 +86,4 @@ function church_people_schema() {
   );
 
   return $schema;
-}
-
-function church_people_install() {
-  // Populate the default {node_access} record.
-  db_insert('church_people_type')->fields(array(
-    'type' => 'member',
-    'label' => 'Member',
-    'description' => 'Default member',
-  ))->execute();
 }

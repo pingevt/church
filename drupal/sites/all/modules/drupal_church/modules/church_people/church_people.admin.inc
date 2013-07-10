@@ -66,11 +66,11 @@ function church_people_type_form_submit(&$form, &$form_state) {
   church_people_type_save($church_people_type);
 
   // Redirect user back to list of church_people types.
-  $form_state['redirect'] = 'admin/church/people/people-types';
+  $form_state['redirect'] = 'admin/church/configure/people-types';
 }
 
 function church_people_type_form_submit_delete(&$form, &$form_state) {
-  $form_state['redirect'] = 'admin/church/people/people-types/' . $form_state['church_people_type']->type . '/delete';
+  $form_state['redirect'] = 'admin/church/configure/people-types/' . $form_state['church_people_type']->type . '/delete';
 }
 
 /**
@@ -82,7 +82,7 @@ function church_people_type_form_delete_confirm($form, &$form_state, $church_peo
   $form['church_people_id'] = array('#type' => 'value', '#value' => entity_id('church_people_type' ,$church_people_type));
   return confirm_form($form,
     t('Are you sure you want to delete people type %title?', array('%title' => entity_label('church_people_type', $church_people_type))),
-    'admin/church/people/people-types/' . entity_id('church_people_type', $church_people_type),
+    'admin/church/configure/people-types/' . entity_id('church_people_type', $church_people_type),
     t('This action cannot be undone.'),
     t('Delete'),
     t('Cancel')
@@ -99,7 +99,10 @@ function church_people_type_form_delete_confirm_submit($form, &$form_state) {
   watchdog('church_people_type', '@type: deleted %title.', array('@type' => $church_people_type->type, '%title' => $church_people_type->label));
   drupal_set_message(t('@type %title has been deleted.', array('@type' => $church_people_type->type, '%title' => $church_people_type->label)));
 
-  $form_state['redirect'] = 'admin/church/people/people-types';
+  //set to rebuild menu
+  variable_set('menu_rebuild_needed', TRUE);
+
+  $form_state['redirect'] = 'admin/church/configure/people-types';
 }
 
 /**
@@ -108,7 +111,7 @@ function church_people_type_form_delete_confirm_submit($form, &$form_state) {
 function church_people_admin_add_page() {
   $items = array();
   foreach (church_people_types() as $church_people_type_key => $church_people_type) {
-    $items[] = l(entity_label('church_people_type', $church_people_type), 'admin/church/people/people-types/' . $church_people_type_key);
+    $items[] = l(entity_label('church_people_type', $church_people_type), 'admin/church/configure/people/add/' . $church_people_type_key);
   }
   return array('list' => array('#theme' => 'item_list', '#items' => $items, '#title' => t('Select type of people to create.')));
 }
@@ -133,6 +136,7 @@ function church_people_add($type) {
 function church_people_form($form, &$form_state, $church_people) {
   $form_state['church_people'] = $church_people;
 
+  /*
   $form['title'] = array(
     '#type' => 'textfield',
     '#required' => TRUE,
@@ -144,7 +148,7 @@ function church_people_form($form, &$form_state, $church_people) {
     '#type' => 'textarea',
     '#title' => t('Description'),
     '#default_value' => $church_people->description,
-  );
+  );*/
 
   $form['uid'] = array(
     '#type' => 'value',
@@ -192,6 +196,8 @@ function church_people_form_validate($form, &$form_state) {
  */
 function church_people_form_submit($form, &$form_state) {
   $church_people = $form_state['church_people'];
+
+  $church_people->title = $form_state['values']['field_name']['und'][0]['given'] .' '. $form_state['values']['field_name']['und'][0]['family'];
 
   entity_form_submit_build_entity('church_people', $church_people, $form, $form_state);
 

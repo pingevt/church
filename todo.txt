@@ -1,0 +1,26 @@
+TODO
+
+- fix menu order and items under Church
+========================================
+-Church
+  -View People
+  -View Gatherings
+  -Configure
+    -add People
+    -add People Types
+    -manage People Types
+    -add Gatherings
+    -add Gatherings Types
+
+
+
+========================================
+
+- create add/edit buttons for views
+- add in all fields
+- create features part of the module (church_people)
+- actual view of person
+
+
+
+- permissions for church module

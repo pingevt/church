@@ -5,6 +5,7 @@ class ChurchPeopleController extends EntityAPIController {
   public function create(array $values = array()) {
     global $user;
     $values += array(
+      'title' => '',
       'created' => REQUEST_TIME,
       'changed' => REQUEST_TIME,
       'uid' => $user->uid,
@@ -61,7 +62,25 @@ class ChurchPeopleTypeController extends EntityAPIControllerExportable {
 }
 
 /**
- * UI controller for Task Type.
+ * UI controller for Person.
+ */
+/*
+class ChurchPeopleUIController extends EntityDefaultUIController {
+  /**
+   * Overrides hook_menu() defaults.
+   *//*
+  public function hook_menu() {
+    $items = parent::hook_menu();
+    $items[$this->path]['title'] = 'Manage church people';
+    $items[$this->path]['description'] = 'Manage Church People.';
+    $items[$this->path]['weight'] = -51;
+    return $items;
+  }
+}
+*/
+
+/**
+ * UI controller for Person Type.
  */
 class ChurchPeopleTypeUIController extends EntityDefaultUIController {
   /**
@@ -69,19 +88,20 @@ class ChurchPeopleTypeUIController extends EntityDefaultUIController {
    */
   public function hook_menu() {
     $items = parent::hook_menu();
-    $items[$this->path]['description'] = 'Manage Task types.';
+    $items[$this->path]['title'] = 'Manage church people types';
+    $items[$this->path]['description'] = 'Manage church people types.';
+    $items[$this->path]['weight'] = -50;
+
     return $items;
   }
 }
 
 /**
- * Task class.
+ * People class.
  */
 class ChurchPeople extends Entity {
   protected function defaultLabel() {
-    //TODO: need to set this to a proper value
-    //return $this->title;
-    return 'BOB-change this';
+    return $this->title;
   }
 
   protected function defaultUri() {
@@ -90,7 +110,7 @@ class ChurchPeople extends Entity {
 }
 
 /**
- * Task Type class.
+ * People Type class.
  */
 class ChurchPeopleType extends Entity {
   public $type;
