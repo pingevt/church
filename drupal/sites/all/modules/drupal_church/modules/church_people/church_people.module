@@ -106,15 +106,15 @@ function church_people_menu() {
   );
 
   $church_people_uri = 'admin/church/configure/people/%church_people';
-  $church_people_uri_argument_position = 1;
+  $church_people_uri_argument_position = 4;
 
-  $items[$church_people_uri] = array(
+  $items['admin/church/people/%church_people'] = array(
     'title callback' => 'entity_label',
-    'title arguments' => array('church_people', $church_people_uri_argument_position),
+    'title arguments' => array('church_people', 3),
     'page callback' => 'church_people_view',
-    'page arguments' => array($church_people_uri_argument_position),
+    'page arguments' => array(3),
     'access callback' => 'entity_access',
-    'access arguments' => array('view', 'church_people', $church_people_uri_argument_position),
+    'access arguments' => array('view', 'church_people', 3),
     'file' => 'church_people.pages.inc',
   );
 
@@ -349,8 +349,8 @@ function church_people_type_delete_multiple($task_type_ids) {
 
 
 /**
-  * Implements hook_views_api().
-  */
+ * Implements hook_views_api().
+ */
 function church_people_views_api() {
   return array(
     'api' => 3,
@@ -358,3 +358,15 @@ function church_people_views_api() {
   );
 }
 
+
+/**
+ * Adds our theme specificiations to the Theme Registry.
+ */
+function church_people_theme($existing, $type, $theme, $path) {
+  return array(
+    'church_people' => array(
+      'variables' => array('element' => null),
+      'template' => 'church_people'
+    ),
+  );
+}
