@@ -1,0 +1,8 @@
+filename = "Church-2013-07-10T15-20-04"
+description = ""
+datestamp = "1373484004"
+generator = "Backup and Migrate (http://drupal.org/project/backup_migrate)"
+generatorversion = "7.x-2.x"
+sites[0][version] = "7.22"
+sites[0][name] = "Church"
+sites[0][url] = "http://church.pete/"
