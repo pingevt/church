@@ -1,5 +1,7 @@
 <?php
 
+include_once 'church_people.features.inc';
+
 /**
 * Implements hook_entity_info().
 */

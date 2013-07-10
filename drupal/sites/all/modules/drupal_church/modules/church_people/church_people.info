@@ -10,3 +10,47 @@ dependencies[] = entity
 dependencies[] = views
 
 files[] = church_people.controller.inc
+
+
+
+dependencies[] = addressfield
+dependencies[] = church_people
+dependencies[] = date
+dependencies[] = email
+dependencies[] = entity
+dependencies[] = features
+dependencies[] = field_collection
+dependencies[] = image
+dependencies[] = list
+dependencies[] = name
+dependencies[] = options
+dependencies[] = phone
+features[church_people_type][] = member
+features[features_api][] = api:2
+features[field_base][] = field_dob
+features[field_base][] = field_name
+features[field_base][] = field_person_address
+features[field_base][] = field_person_email
+features[field_base][] = field_person_gender
+features[field_base][] = field_person_image
+features[field_base][] = field_person_phone
+features[field_instance][] = church_people-member-field_dob
+features[field_instance][] = church_people-member-field_name
+features[field_instance][] = church_people-member-field_person_address
+features[field_instance][] = church_people-member-field_person_email
+features[field_instance][] = church_people-member-field_person_gender
+features[field_instance][] = church_people-member-field_person_image
+features[field_instance][] = church_people-member-field_person_phone
+features_exclude[field][church_people-member-field_name] = church_people-member-field_name
+features_exclude[field][church_people-member-field_dob] = church_people-member-field_dob
+features_exclude[field][church_people-member-field_person_image] = church_people-member-field_person_image
+features_exclude[field][church_people-member-field_person_email] = church_people-member-field_person_email
+features_exclude[field][church_people-member-field_person_phone] = church_people-member-field_person_phone
+features_exclude[field][church_people-member-field_person_address] = church_people-member-field_person_address
+features_exclude[field][church_people-member-field_person_gender] = church_people-member-field_person_gender
+features_exclude[field][field_collection_item-field_person_email-field_email_label] = field_collection_item-field_person_email-field_email_label
+features_exclude[field][field_collection_item-field_person_email-field_email_address] = field_collection_item-field_person_email-field_email_address
+features_exclude[field][field_collection_item-field_person_phone-field_phone_label] = field_collection_item-field_person_phone-field_phone_label
+features_exclude[field][field_collection_item-field_person_phone-field_phone] = field_collection_item-field_person_phone-field_phone
+features_exclude[field][field_collection_item-field_person_address-field_address_label] = field_collection_item-field_person_address-field_address_label
+features_exclude[field][field_collection_item-field_person_address-field_address] = field_collection_item-field_person_address-field_address

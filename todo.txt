@@ -17,8 +17,6 @@ TODO
 ========================================
 
 - create add/edit buttons for views
-- add in all fields
-- create features part of the module (church_people)
 - actual view of person
 
 
