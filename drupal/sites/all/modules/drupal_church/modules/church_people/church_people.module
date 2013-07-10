@@ -118,6 +118,16 @@ function church_people_menu() {
     'file' => 'church_people.pages.inc',
   );
 
+  $items[$church_people_uri] = array(
+    'title callback' => 'entity_label',
+    'title arguments' => array('church_people', $church_people_uri_argument_position),
+    'page callback' => 'church_people_view',
+    'page arguments' => array($church_people_uri_argument_position),
+    'access callback' => 'entity_access',
+    'access arguments' => array('view', 'church_people', $church_people_uri_argument_position),
+    'file' => 'church_people.pages.inc',
+  );
+
   $items[$church_people_uri . '/view'] = array(
     'title' => 'View',
     'type' => MENU_DEFAULT_LOCAL_TASK,
@@ -133,6 +143,7 @@ function church_people_menu() {
     'access callback' => 'entity_access',
     'access arguments' => array('edit', 'church_people', $church_people_uri_argument_position),
     'file' => 'church_people.admin.inc',
+    'context' => MENU_CONTEXT_PAGE | MENU_CONTEXT_INLINE,
   );
 
   $items[$church_people_uri . '/edit'] = array(
@@ -354,7 +365,7 @@ function church_people_type_delete_multiple($task_type_ids) {
 function church_people_views_api() {
   return array(
     'api' => 3,
-    'path' => drupal_get_path('module', 'church_people'),
+    'path' => drupal_get_path('module', 'church_people') . '/views',
   );
 }
 

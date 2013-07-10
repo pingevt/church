@@ -10,7 +10,12 @@ dependencies[] = entity
 dependencies[] = views
 
 files[] = church_people.controller.inc
-
+files[] = views/church_people.views.inc
+files[] = views/church_people.views_default.inc
+files[] = views/church_people_handler_link_field.inc
+files[] = views/church_people_handler_delete_link_field.inc
+files[] = views/church_people_handler_edit_link_field.inc
+files[] = views/church_people_handler_church_people_operations_field.inc
 
 
 dependencies[] = addressfield
