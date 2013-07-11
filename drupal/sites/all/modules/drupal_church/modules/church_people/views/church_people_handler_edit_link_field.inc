@@ -26,6 +26,6 @@ class church_people_handler_edit_link_field extends church_people_handler_link_f
     $text = !empty($this->options['text']) ? $this->options['text'] : t('edit');
     $church_people_id = $values->{$this->aliases['cpid']};
 
-    return l($text, 'admin/church/configure/people/' . $church_people_id . '/edit');
+    return l($text, 'admin/church/people/' . $church_people_id . '/edit');
   }
 }

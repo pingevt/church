@@ -1,7 +1,7 @@
 <?php
 /**
  * @file
- * test.features.field_base.inc
+ * church_people.features.field_base.inc
  */
 
 /**

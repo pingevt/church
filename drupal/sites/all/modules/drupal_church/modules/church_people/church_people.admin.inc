@@ -111,7 +111,7 @@ function church_people_type_form_delete_confirm_submit($form, &$form_state) {
 function church_people_admin_add_page() {
   $items = array();
   foreach (church_people_types() as $church_people_type_key => $church_people_type) {
-    $items[] = l(entity_label('church_people_type', $church_people_type), 'admin/church/configure/people/add/' . $church_people_type_key);
+    $items[] = l(entity_label('church_people_type', $church_people_type), 'admin/church/people/add/' . $church_people_type_key);
   }
   return array('list' => array('#theme' => 'item_list', '#items' => $items, '#title' => t('Select type of people to create.')));
 }

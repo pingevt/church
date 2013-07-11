@@ -17,8 +17,7 @@ class church_people_handler_church_people_operations_field extends views_handler
   }
 
   function render($values) {
-
-    $links = menu_contextual_links('church_people', 'admin/church/configure/people', array($this->get_value($values, 'cpid')));
+    $links = menu_contextual_links('church_people', 'admin/church/people', array($this->get_value($values, 'cpid')));
 
     if (!empty($links)) {
       return theme('links', array('links' => $links, 'attributes' => array('class' => array('links', 'inline', 'operations'))));

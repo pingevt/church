@@ -105,7 +105,7 @@ class ChurchPeople extends Entity {
   }
 
   protected function defaultUri() {
-    return array('path' => 'admin/church/people/people-types/' . $this->identifier());
+    return array('path' => 'admin/church/people/' . $this->identifier());
   }
 }
 
