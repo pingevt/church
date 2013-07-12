@@ -1,0 +1,58 @@
+<?php
+
+/**
+ * Implements hook_schema().
+ */
+function church_family_schema() {
+  $schema = array();
+
+  $schema['church_family_spouse'] = array(
+    'description' => 'The base table for church family.',
+    'fields' => array(
+      'cfid' => array(
+        'description' => 'The primary identifier for the family.',
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'paternal_cpid' => array(
+        'description' => 'The cpid of the father',
+        'type' => 'int',
+        'not null' => TRUE,
+      ),
+      'maternal_cpid' => array(
+        'description' => 'The cpid of the mother',
+        'type' => 'int',
+        'not null' => TRUE,
+      ),
+      'relationship_status' => array(
+        'description' => 'The status of the relationship',
+        'type' => 'int',
+        'not null' => TRUE,
+      ),
+    ),
+    'primary key' => array('cfid'),
+  );
+
+  $schema['church_children'] = array(
+    'description' => 'Parent-child relationships',
+    'fields' => array(
+      'parent_cpid' => array(
+        'description' => 'The uid of the parent',
+        'type' => 'int',
+        'not null' => TRUE,
+      ),
+      'child_cpid' => array(
+        'description' => 'The uid of the child',
+        'type' => 'int',
+        'not null' => TRUE,
+      ),
+    ),
+    'indexes' => array(
+      'parents' => array('parent_cpid'),
+    ),
+  );
+
+  return $schema;
+}
+

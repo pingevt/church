@@ -37,7 +37,7 @@ function hook_church_people_load(array $entities) {
  *
  * @see hook_entity_insert()
  */
-function hook_church_people_insert(ExampleTask $church_people) {
+function hook_church_people_insert(ChurchPeople $church_people) {
   db_insert('mytable')
     ->fields(array(
       'id' => entity_id('church_people', $church_people),
@@ -56,7 +56,7 @@ function hook_church_people_insert(ExampleTask $church_people) {
  *
  * @see hook_entity_presave()
  */
-function hook_church_people_presave(ExampleTask $church_people) {
+function hook_church_people_presave(ChurchPeople $church_people) {
   $church_people->name = 'foo';
 }
 
@@ -70,7 +70,7 @@ function hook_church_people_presave(ExampleTask $church_people) {
  *
  * @see hook_entity_update()
  */
-function hook_church_people_update(ExampleTask $church_people) {
+function hook_church_people_update(ChurchPeople $church_people) {
   db_update('mytable')
     ->fields(array('extra' => print_r($church_people, TRUE)))
     ->condition('id', entity_id('church_people', $church_people))
@@ -87,7 +87,7 @@ function hook_church_people_update(ExampleTask $church_people) {
  *
  * @see hook_entity_delete()
  */
-function hook_church_people_delete(ExampleTask $church_people) {
+function hook_church_people_delete(ChurchPeople $church_people) {
   db_delete('mytable')
     ->condition('pid', entity_id('church_people', $church_people))
     ->execute();
@@ -173,7 +173,7 @@ function hook_church_people_type_load(array $entities) {
  *
  * @see hook_entity_insert()
  */
-function hook_church_people_type_insert(ExampleTaskType $church_people_type) {
+function hook_church_people_type_insert(ChurchPeopleType $church_people_type) {
   db_insert('mytable')
     ->fields(array(
       'id' => entity_id('church_people_type', $church_people_type),
@@ -192,7 +192,7 @@ function hook_church_people_type_insert(ExampleTaskType $church_people_type) {
  *
  * @see hook_entity_presave()
  */
-function hook_church_people_type_presave(ExampleTaskType $church_people_type) {
+function hook_church_people_type_presave(ChurchPeopleType $church_people_type) {
   $church_people_type->name = 'foo';
 }
 
@@ -206,7 +206,7 @@ function hook_church_people_type_presave(ExampleTaskType $church_people_type) {
  *
  * @see hook_entity_update()
  */
-function hook_church_people_type_update(ExampleTaskType $church_people_type) {
+function hook_church_people_type_update(ChurchPeopleType $church_people_type) {
   db_update('mytable')
     ->fields(array('extra' => print_r($church_people_type, TRUE)))
     ->condition('id', entity_id('church_people_type', $church_people_type))
@@ -223,7 +223,7 @@ function hook_church_people_type_update(ExampleTaskType $church_people_type) {
  *
  * @see hook_entity_delete()
  */
-function hook_church_people_type_delete(ExampleTaskType $church_people_type) {
+function hook_church_people_type_delete(ChurchPeopleType $church_people_type) {
   db_delete('mytable')
     ->condition('pid', entity_id('church_people_type', $church_people_type))
     ->execute();

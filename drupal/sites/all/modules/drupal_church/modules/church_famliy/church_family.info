@@ -1,0 +1,11 @@
+name = Drupal church family
+description = Module for family relationships for people
+core = 7.x
+package = Church
+php = 5.2.4
+version = 7.x-0.1
+project = church_people
+
+dependencies[] = church_people
+dependencies[] = drupal_church
+

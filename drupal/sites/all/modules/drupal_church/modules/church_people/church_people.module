@@ -185,6 +185,14 @@ function church_people_menu() {
     'file' => 'church_people.admin.inc',
   );
 
+
+
+  $items['admin/church/autocomplete/people'] = array(
+    'page callback' => 'church_autocomplete_people',
+    'access arguments' => array('access content'),
+    'type' => MENU_CALLBACK,
+  );
+
   return $items;
 }
 
@@ -387,4 +395,17 @@ function church_people_theme($existing, $type, $theme, $path) {
       'template' => 'church_people'
     ),
   );
+}
+
+
+function church_autocomplete_people($string = '') {
+  $matches = array();
+
+  $result = db_query_range('SELECT * FROM {church_people} WHERE LOWER(title) LIKE LOWER(:string)', 0, 10, array(':string' => '%' . $string . '%'));
+
+  foreach ($result AS $p) {
+    $matches[$p->title] = $p->title;
+  }
+
+  print json_encode($matches);
 }

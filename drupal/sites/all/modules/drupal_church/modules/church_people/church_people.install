@@ -48,6 +48,8 @@ function church_people_schema() {
       ),
     ),
     'primary key' => array('cpid'),
+    //we need to start this at 1 so we can use 0 as annonymous, without creating a user at 0
+    'mysql_suffix' => " AUTO_INCREMENT=1 ",
   );
 
   $schema['church_people_type'] = array(

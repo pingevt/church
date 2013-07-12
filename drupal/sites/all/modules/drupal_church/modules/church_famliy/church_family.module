@@ -1,0 +1,128 @@
+<?php
+
+define("CHURCH_FAMILY_MARRIED",   0);
+define("CHURCH_FAMILY_MARRIED_LABEL",   'Married');
+define("CHURCH_FAMILY_WIDOWED",   1);
+define("CHURCH_FAMILY_WIDOWED_LABEL",   'Widowed');
+define("CHURCH_FAMILY_DIVORCED",  2);
+define("CHURCH_FAMILY_DIVORCED_LABEL",  'Divorced');
+define("CHURCH_FAMILY_ENGAGED",   3);
+define("CHURCH_FAMILY_ENGAGED_LABEL",   'Engaged');
+define("CHURCH_FAMILY_PARTNERED", 3);
+define("CHURCH_FAMILY_PARTNERED_LABEL", 'Partnered');
+
+/**
+ * Implements hook_entity_property_info_alter() on top of book module.
+ * @see entity_metadata_entity_property_info_alter()
+ */
+function church_family_entity_property_info_alter(&$info) {
+  // Add meta-data about the added node properties.
+  $properties = &$info['church_people']['properties'];
+  $properties['church_family_spouses'] = array(
+    'label' => t("Spouses"),
+    'description' => t("The spouses of a person."),
+    'type' => 'list',
+    'getter callback' => 'entity_property_church_people_church_family_spouses',
+  );
+
+  $properties['church_family_children'] = array(
+    'label' => t("Children"),
+    'description' => t("The children of a person."),
+    'type' => 'list',
+    'getter callback' => 'entity_property_church_people_church_family_children',
+  );
+}
+
+function entity_property_church_people_church_family_spouses($data, array $options, $name, $type, $info) {
+  if ( isset($data->church_family_spouses) ) {
+    return $data->church_family_spouses;
+  }
+  else {
+    return array();
+  }
+}
+
+function entity_property_church_people_church_family_children($data, array $options, $name, $type, $info) {
+  if ( isset($data->church_family_children) ) {
+    return $data->church_family_children;
+  }
+  else {
+    return array();
+  }
+}
+
+function church_family_form_alter(&$form, &$form_state, $form_id) {
+
+  if ($form_id == 'church_people_form') {
+    /*
+    $form['church_family_something_blah_blah'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Spouses'),
+      '#default_value' => '',
+      '#weight' => 100,
+      '#autocomplete_path' => 'admin/church/autocomplete/people',
+    );
+    */
+
+    $form['#validate'][] = '_bob';
+    //dsm($form);
+    $form['church_family_something_blah_blah'] = array(
+      '#type' => 'entityreference',
+      '#title' => t('My Reference'),
+      '#era_entity_type' => 'node',  // Mandatory.
+      '#era_bundles' => array(), // Optional (Any bundle by default).
+      '#era_cardinality' => 1,       // Optional (1 By default).
+    );
+  }
+}
+
+function _bob(&$form, &$form_state) {
+  print '<pre>';
+  print_r($form_state['values']);
+  die();
+}
+
+function church_family_church_people_load(array $people) {
+  foreach ($people as $cpid => $person) {
+    $person->church_family_spouses = array();
+    $person->church_family_children = array();
+
+    $pw = entity_metadata_wrapper('church_people', $person);
+    $person_gender = $pw->field_person_gender->value();
+
+    $gender_fields = array(
+      'male' => 'paternal_cpid',
+      'female' => 'maternal_cpid',
+    );
+    $gender_switch = array(
+      'male' => 'female',
+      'female' => 'male',
+    );
+
+    if ($person_gender == 'male') {
+      $spouse_result = db_query('SELECT * FROM {church_family_spouse} WHERE paternal_cpid = :cpid', array( ':cpid' => $cpid));
+    } else {
+      $spouse_result = db_query('SELECT * FROM {church_family_spouse} WHERE maternal_cpid = :cpid', array( ':cpid' => $cpid));
+    }
+
+    foreach ($spouse_result as $record) {
+      $person->church_family_spouses[] = array(
+        'spouse' => $record->{$gender_fields[$gender_switch[$person_gender]]},
+        'status' => $record->relationship_status,
+      );
+    }
+
+    $children_result = db_query('SELECT * FROM {church_children} WHERE parent_cpid = :cpid', array( ':cpid' => $cpid));
+
+    foreach ($children_result as $record) {
+      $person->church_family_children[] = array(
+        'child' => $record->child_cpid,
+      );
+    }
+  }
+}
+
+function church_family_church_people_presave($people) {
+
+}
+
