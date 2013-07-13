@@ -137,6 +137,40 @@ function church_people_field_default_field_instances() {
     ),
   );
 
+  // Exported field_instance: 'church_people-member-field_notes'
+  $field_instances['church_people-member-field_notes'] = array(
+    'bundle' => 'member',
+    'default_value' => NULL,
+    'deleted' => 0,
+    'description' => '',
+    'display' => array(
+      'default' => array(
+        'label' => 'above',
+        'module' => 'text',
+        'settings' => array(),
+        'type' => 'text_default',
+        'weight' => 7,
+      ),
+    ),
+    'entity_type' => 'church_people',
+    'field_name' => 'field_notes',
+    'label' => 'Notes',
+    'required' => 0,
+    'settings' => array(
+      'text_processing' => 1,
+      'user_register_form' => FALSE,
+    ),
+    'widget' => array(
+      'active' => 1,
+      'module' => 'text',
+      'settings' => array(
+        'rows' => 5,
+      ),
+      'type' => 'text_textarea',
+      'weight' => 7,
+    ),
+  );
+
   // Exported field_instance: 'church_people-member-field_person_address'
   $field_instances['church_people-member-field_person_address'] = array(
     'bundle' => 'member',
@@ -319,6 +353,7 @@ function church_people_field_default_field_instances() {
   t('Gender');
   t('Image');
   t('Name');
+  t('Notes');
   t('Phone');
 
   return $field_instances;
