@@ -1,15 +1,17 @@
 <?php
 
-define("CHURCH_FAMILY_MARRIED",   0);
-define("CHURCH_FAMILY_MARRIED_LABEL",   'Married');
-define("CHURCH_FAMILY_WIDOWED",   1);
-define("CHURCH_FAMILY_WIDOWED_LABEL",   'Widowed');
-define("CHURCH_FAMILY_DIVORCED",  2);
-define("CHURCH_FAMILY_DIVORCED_LABEL",  'Divorced');
-define("CHURCH_FAMILY_ENGAGED",   3);
-define("CHURCH_FAMILY_ENGAGED_LABEL",   'Engaged');
-define("CHURCH_FAMILY_PARTNERED", 3);
-define("CHURCH_FAMILY_PARTNERED_LABEL", 'Partnered');
+define("CHURCH_FAMILY_NO_STATUS",   -1);
+define("CHURCH_FAMILY_NO_STATUS_LABEL",   'No Status');
+define("CHURCH_FAMILY_MARRIED",     0);
+define("CHURCH_FAMILY_MARRIED_LABEL",     'Married');
+define("CHURCH_FAMILY_WIDOWED",     1);
+define("CHURCH_FAMILY_WIDOWED_LABEL",     'Widowed');
+define("CHURCH_FAMILY_DIVORCED",    2);
+define("CHURCH_FAMILY_DIVORCED_LABEL",    'Divorced');
+define("CHURCH_FAMILY_ENGAGED",     3);
+define("CHURCH_FAMILY_ENGAGED_LABEL",     'Engaged');
+define("CHURCH_FAMILY_PARTNERED",   4);
+define("CHURCH_FAMILY_PARTNERED_LABEL",   'Partnered');
 
 /**
  * Implements hook_entity_property_info_alter() on top of book module.
@@ -54,32 +56,102 @@ function entity_property_church_people_church_family_children($data, array $opti
 function church_family_form_alter(&$form, &$form_state, $form_id) {
 
   if ($form_id == 'church_people_form') {
-    /*
-    $form['church_family_something_blah_blah'] = array(
-      '#type' => 'textfield',
-      '#title' => t('Spouses'),
-      '#default_value' => '',
-      '#weight' => 100,
-      '#autocomplete_path' => 'admin/church/autocomplete/people',
-    );
-    */
 
-    $form['#validate'][] = '_bob';
-    //dsm($form);
-    $form['church_family_something_blah_blah'] = array(
-      '#type' => 'drupal_church_entityreference',
-      '#title' => t('My Reference'),
-      '#era_entity_type' => 'church_people', // Mandatory.
-      '#era_bundles' => FALSE,      // Optional (Any bundle by default).
-      '#era_cardinality' => 1,      // Optional (1 By default).
-      '#era_column' => 'title',       // Optional (label By default).
+    //add validate and submit handlers
+    $form['#validate'][] = '_church_people_form_family_validate';
+    $form['actions']['submit']['#submit'][] = '_church_people_form_family_submit';
+
+    if(!isset($form_state['howmany_spouses'])) {
+      if($form['#entity']->church_family_spouses) $form_state['howmany_spouses'] = count((array)$form['#entity']->church_family_spouses) + 1;
+      else $form_state['howmany_spouses'] = 1;
+    }
+    $num_of_spouses = $form_state['howmany_spouses'];
+
+    $form['church_family_spouses'] = array(
+      '#type' => 'fieldset',
+      '#weight' => 100,
+      '#title' => t('Spouses'),
+      '#prefix' => '<div id="church-family-spouses-wrapper">',
+      '#suffix' => '</div>',
+      '#tree' => TRUE,
     );
+
+
+    for ($i = 1; $i <= $num_of_spouses; $i++) {
+
+      unset($person);
+      if (isset($form['#entity']->church_family_spouses[($i-1)])) {
+        $person = church_people_load($form['#entity']->church_family_spouses[($i-1)]['spouse']);
+      }
+
+      $form['church_family_spouses']['spouse_'.$i] = array(
+        '#type' => 'fieldset',
+        '#weight' => (1 + $i),
+      );
+      $form['church_family_spouses']['spouse_'.$i]['church_family_spouse_person'] = array(
+        '#type' => 'drupal_church_entityreference',
+        '#title' => t('Spouse'),
+        '#weight' => 100,
+        '#era_entity_type' => 'church_people', // Mandatory.
+        '#era_bundles' => FALSE,      // Optional (Any bundle by default).
+        '#era_cardinality' => 1,      // Optional (1 By default).
+        '#era_column' => 'title',       // Optional (label By default).
+
+        '#default_value' => (empty($person)) ? NULL : $person->title . ' (' . $form['#entity']->church_family_spouses[($i-1)]['spouse'] . ')',
+      );
+      $form['church_family_spouses']['spouse_'.$i]['church_family_spouse_label'] = array(
+        '#type' => 'select',
+        '#title' => t('Status'),
+        '#weight' => 101,
+        '#options' => array(
+          -1 => '--',
+          CHURCH_FAMILY_MARRIED => CHURCH_FAMILY_MARRIED_LABEL,
+          CHURCH_FAMILY_WIDOWED => CHURCH_FAMILY_WIDOWED_LABEL,
+          CHURCH_FAMILY_DIVORCED => CHURCH_FAMILY_DIVORCED_LABEL,
+          CHURCH_FAMILY_ENGAGED => CHURCH_FAMILY_ENGAGED_LABEL,
+          CHURCH_FAMILY_PARTNERED => CHURCH_FAMILY_PARTNERED_LABEL,
+        ),
+        '#default_value' => (empty($person)) ? -1 : $form['#entity']->church_family_spouses[($i-1)]['status'],
+      );
+    }
+
+    //add button
+    $form['church_family_spouses']['add_spouse'] = array(
+      '#type' => 'submit',
+      '#value' => t('Add one more'),
+      '#submit' => array('church_family_add_more_spouses_submit'),
+      '#name' => 'add_more_spouse',
+      '#weight' => 200,
+      // See the examples in ajax_example.module for more details on the
+      // properties of #ajax.
+      '#ajax' => array(
+        'callback' => 'church_family_add_more_spouses',
+        'wrapper' => 'church-family-spouses-wrapper',
+        'method' => 'replace',
+        'effect' => 'fade',
+      ),
+    );
+
   }
 }
 
-function _bob(&$form, &$form_state) {
+function church_family_add_more_spouses_submit($form, &$form_state) {
+  $form_state['howmany_spouses']++;
+  $form_state['rebuild'] = TRUE;
+}
+
+function church_family_add_more_spouses($form, &$form_state) {
+  return $form['church_family_spouses'];
+}
+
+function _church_people_form_family_validate(&$form, &$form_state) {
+
+}
+
+function _church_people_form_family_submit(&$form, &$form_state) {
   print '<pre>';
-  print_r($form_state['values']);
+  print 'the correct submit';
+  print_r($form_state);
   die();
 }
 

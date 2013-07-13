@@ -81,11 +81,6 @@ function drupal_church_era_process_entityreference($element, &$form_state) {
  * Page callback for the entityreference elements autocomplete path.
  */
 function drupal_church_era_callback($entity_type, $column, $bundles, $string = '') {
-watchdog('drupal_church', $entity_type);
-watchdog('drupal_church', $column);
-watchdog('drupal_church', $bundles);
-watchdog('drupal_church', $string);
-
   $matches = array();
 
   // The user enters a comma-separated list of entity labels. Autocomplete only

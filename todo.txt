@@ -20,5 +20,7 @@ TODO
 - phone field, add cell
 - actual view of person
 
+- add remove button for lists of spouses and children
+
 
 - permissions for church module
