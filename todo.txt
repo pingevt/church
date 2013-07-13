@@ -19,7 +19,6 @@ TODO
 - DOB field, better years
 - phone field, add cell
 - actual view of person
-- recreate entity reference autocomplete
 
 
 - permissions for church module

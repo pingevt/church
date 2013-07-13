@@ -2,46 +2,31 @@
 
 /**
  * @file
- * entityreference_autocomplete module.
- * A Form API element type to reference arbitrary entities through an
- * autocomplete textfield.
- */
-
-/**
- * Implements hook_menu().
- */
-function entityreference_autocomplete_menu() {
-  $items['entityreference_autocomplete/autocomplete/%/%entityreference_autocomplete_bundles'] = array(
-    'title' => 'Entity Reference Element autocomplete callback',
-    'page callback' => 'entityreference_autocomplete_autocomplete_callback',
-    'page arguments' => array(2, 3),
-    'access arguments' => array('access content'),
-    'type' => MENU_CALLBACK,
-  );
-  return $items;
-}
-
-/**
- * Returns a list of bundles from the entityreference_autocomplete path.
+ * drupal_church entityreference autocomplete functionality.
  *
- * @return array
- *   The different bundles extracted from the autocomplete path.
+ * copied and modified from entityreference_autocomplete module
  */
-function entityreference_autocomplete_bundles_load($bundles_string) {
+
+function drupal_church_era_bundles_load($bundles_string) {
   return ($bundles_string == '*') ? NULL : explode('+', $bundles_string);
 }
+
+function drupal_church_era_column_load($col_string) {
+  return ($col_string == '*') ? NULL : $col_string;
+}
+
 
 /**
  * Implements hook_element_info().
  */
-function entityreference_autocomplete_element_info() {
-  $types['entityreference'] = array(
+function drupal_church_element_info() {
+  $types['drupal_church_entityreference'] = array(
     '#input' => TRUE,
     '#size' => 60,
     '#maxlength' => 128,
     '#autocomplete_path' => FALSE,
-    '#process' => array('ajax_process_form', 'entityreference_autocomplete_process_entityreference'),
-    '#element_validate' => array('entityreference_autocomplete_validate_entityreference'),
+    '#process' => array('ajax_process_form', 'drupal_church_era_process_entityreference'),
+    '#element_validate' => array('drupal_church_validate_era'),
     '#theme' => 'textfield',
     '#theme_wrappers' => array('form_element'),
     // Custom attributes. Set to false so that nothing happens if a dev doesn't
@@ -49,12 +34,13 @@ function entityreference_autocomplete_element_info() {
     '#era_entity_type' => FALSE,
     '#era_bundles' => FALSE,
     '#era_cardinality' => 1,
+    '#era_column' => FALSE,
   );
   return $types;
 }
 
 /**
- * Form element processing handler for the 'entityreference' element type.
+ * Form element processing handler for the 'drupal_church_entityreference' element type.
  *
  * @param $element
  *   An associative array containing the properties of the element.
@@ -62,12 +48,20 @@ function entityreference_autocomplete_element_info() {
  * @return
  *   The processed element.
  *
- * @see entityreference_autocomplete_element_info()
+ * @see drupal_church_element_info()
  */
-function entityreference_autocomplete_process_entityreference($element, &$form_state) {
+function drupal_church_era_process_entityreference($element, &$form_state) {
   if ($element['#era_entity_type']) {
     // Set the autocomplete path based on the entity type to look for.
-    $autocomplete_path = 'entityreference_autocomplete/autocomplete/' . $element['#era_entity_type'];
+    $autocomplete_path = 'admin/church/autocomplete/' . $element['#era_entity_type'];
+
+    //add column
+    if (!empty($element['#era_column']) && is_string($element['#era_column'])) {
+      $autocomplete_path .= '/' . $element['#era_column'];
+    }
+    else {
+      $autocomplete_path .= '/*';
+    }
 
     // If there's bundle filtering, add it. Otherwise, set a wildcard. Also,
     // force the property to be an array.
@@ -86,12 +80,17 @@ function entityreference_autocomplete_process_entityreference($element, &$form_s
 /**
  * Page callback for the entityreference elements autocomplete path.
  */
-function entityreference_autocomplete_autocomplete_callback($entity_type, $bundles, $string = '') {
+function drupal_church_era_callback($entity_type, $column, $bundles, $string = '') {
+watchdog('drupal_church', $entity_type);
+watchdog('drupal_church', $column);
+watchdog('drupal_church', $bundles);
+watchdog('drupal_church', $string);
+
   $matches = array();
 
   // The user enters a comma-separated list of entity labels. Autocomplete only
   // the last label.
-  $labels_typed = entityreference_autocomplete_explode_tags($string);
+  $labels_typed = drupal_church_explode_tags($string);
   $last_label = drupal_strtolower(array_pop($labels_typed));
   if (!empty($last_label)) {
     $prefix = count($labels_typed) ? implode(', ', $labels_typed) . ', ' : '';
@@ -112,7 +111,10 @@ function entityreference_autocomplete_autocomplete_callback($entity_type, $bundl
     }
 
     // Need to fetch the column used as entity label.
-    if (isset($entity_info['entity keys']['label'])) {
+    if ($column) {
+      $label_column = $column;
+    }
+    elseif (isset($entity_info['entity keys']['label'])) {
       $label_column = $entity_info['entity keys']['label'];
     }
     // Interestingly that Drupal's core doesn't define any label for users, is
@@ -124,6 +126,7 @@ function entityreference_autocomplete_autocomplete_callback($entity_type, $bundl
           break;
       }
     }
+
     $query->propertyCondition($label_column, '%' . $last_label . '%', 'LIKE');
     $result = $query->execute();
 
@@ -146,11 +149,11 @@ function entityreference_autocomplete_autocomplete_callback($entity_type, $bundl
 }
 
 /**
- * Form element validation handler for entityreference elements.
+ * Form element validation handler for drupal_church_entityreference elements.
  *
  * Note that #required is validated by core.
  */
-function entityreference_autocomplete_validate_entityreference(&$element, &$form_state) {
+function drupal_church_validate_era(&$element, &$form_state) {
   $labels_string = $element['#value'];
   $entity_labels = drupal_explode_tags($labels_string);
   $values = array();
@@ -248,7 +251,7 @@ function entityreference_autocomplete_validate_entityreference(&$element, &$form
  *
  * @see drupal_explode_tags()
  */
-function entityreference_autocomplete_explode_tags($tags) {
+function drupal_church_explode_tags($tags) {
   $regexp = '%(?:^|,\ *)("(?>[^"]*)(?>""[^"]* )*"|(?: [^",]*))%x';
   preg_match_all($regexp, $tags, $matches);
   $typed_tags = array_unique($matches[1]);

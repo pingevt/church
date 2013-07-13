@@ -67,11 +67,12 @@ function church_family_form_alter(&$form, &$form_state, $form_id) {
     $form['#validate'][] = '_bob';
     //dsm($form);
     $form['church_family_something_blah_blah'] = array(
-      '#type' => 'entityreference',
+      '#type' => 'drupal_church_entityreference',
       '#title' => t('My Reference'),
-      '#era_entity_type' => 'node',  // Mandatory.
-      '#era_bundles' => array(), // Optional (Any bundle by default).
-      '#era_cardinality' => 1,       // Optional (1 By default).
+      '#era_entity_type' => 'church_people', // Mandatory.
+      '#era_bundles' => FALSE,      // Optional (Any bundle by default).
+      '#era_cardinality' => 1,      // Optional (1 By default).
+      '#era_column' => 'title',       // Optional (label By default).
     );
   }
 }

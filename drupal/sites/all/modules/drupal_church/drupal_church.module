@@ -1,20 +1,54 @@
 <?php
 
+include_once('drupal_church_entityreference_autocomplete.inc');
+
 function drupal_church_menu() {
   $items = array();
 
   $items['admin/church'] = array(
     'title' => 'Church',
     'description' => 'Church Settings',
+    //TODO change access arguments
     'access arguments' => array(TRUE),
     'type' => MENU_NORMAL_ITEM,
   );
 
   $items['admin/church/configure'] = array(
     'title' => 'Configure Church Settings',
+    //TODO change access arguments
     'access arguments' => array(TRUE),
     'weight' => 100,
   );
 
+  //TODO remove before GOLIVE
+  $items['admin/church/test'] = array(
+    'title' => 'Test',
+    'page callback' => 'drupal_church_test',
+    'access arguments' => array(TRUE),
+    'weight' => 100,
+    'type' => MENU_NORMAL_ITEM,
+  );
+
+
+  //entityreference_autocomplete (era)
+  $items['admin/church/autocomplete/%/%drupal_church_era_column/%drupal_church_era_bundles'] = array(
+    'title' => 'Entity Reference Element autocomplete callback',
+    'page callback' => 'drupal_church_era_callback',
+    'page arguments' => array(3, 4, 5),
+    'access arguments' => array('access content'),
+    'type' => MENU_CALLBACK,
+  );
+
   return $items;
+}
+
+function drupal_church_test() {
+  print 'HI';
+
+  //drupal_church_era_callback('church_people', 'title', '*', 'p');
+
+  $query = new EntityFieldQuery();
+  $query->entityCondition('entity_type', 'church_people');
+  $query->propertyCondition('title', '%p%', 'LIKE');
+  print_r($query->execute());
 }
