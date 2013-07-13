@@ -203,6 +203,9 @@ function church_people_form_submit($form, &$form_state) {
 
   church_people_save($church_people);
 
+  //reset this so other submit handlers will now have the new entity
+  $form_state['church_people'] = $church_people;
+
   $church_people_uri = entity_uri('church_people', $church_people);
 
   $form_state['redirect'] = $church_people_uri['path'];

@@ -9,12 +9,6 @@ function church_family_schema() {
   $schema['church_family_spouse'] = array(
     'description' => 'The base table for church family.',
     'fields' => array(
-      'cfid' => array(
-        'description' => 'The primary identifier for the family.',
-        'type' => 'serial',
-        'unsigned' => TRUE,
-        'not null' => TRUE,
-      ),
       'paternal_cpid' => array(
         'description' => 'The cpid of the father',
         'type' => 'int',
@@ -31,7 +25,9 @@ function church_family_schema() {
         'not null' => TRUE,
       ),
     ),
-    'primary key' => array('cfid'),
+    'indexes' => array(
+      'parents' => array('paternal_cpid', 'maternal_cpid'),
+    ),
   );
 
   $schema['church_children'] = array(

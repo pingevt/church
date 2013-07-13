@@ -149,10 +149,44 @@ function _church_people_form_family_validate(&$form, &$form_state) {
 }
 
 function _church_people_form_family_submit(&$form, &$form_state) {
-  print '<pre>';
-  print 'the correct submit';
-  print_r($form_state);
-  die();
+
+  $person = $form_state['church_people'];
+  $pw = entity_metadata_wrapper('church_people', $person);
+
+  $gender = $pw->field_person_gender->value();
+  $cols = array(
+    'male' => 'paternal_cpid',
+    'female' => 'maternal_cpid',
+  );
+
+  //clear all records
+  $query = 'DELETE FROM {church_family_spouse} WHERE ' . $cols[$gender] . ' = :cpid';
+  db_query($query, array(':cpid' => $pw->cpid->value()));
+
+  foreach ($form_state['values']['church_family_spouses'] AS $spouse) {
+    if (is_array($spouse) && is_array($spouse['church_family_spouse_person'])) {
+
+      $q = db_insert('church_family_spouse');
+
+      $query = "INSERT INTO {church_family_spouse} SET (paternal_cpid, maternal_cpid, relationship_status) VALUES (";
+      if ($gender == 'male') {
+        $q->fields(array(
+          'paternal_cpid' => $pw->cpid->value(),
+          'maternal_cpid' => $spouse['church_family_spouse_person']['entity_id'],
+          'relationship_status' => $spouse['church_family_spouse_label'],
+        ));
+      }
+      else {
+        $q->fields(array(
+          'paternal_cpid' => $spouse['church_family_spouse_person']['entity_id'] ,
+          'maternal_cpid' => $pw->cpid->value(),
+          'relationship_status' => $spouse['church_family_spouse_label'],
+        ));
+      }
+
+      $q->execute();
+    }
+  }
 }
 
 function church_family_church_people_load(array $people) {
