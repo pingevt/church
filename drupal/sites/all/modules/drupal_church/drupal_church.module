@@ -45,10 +45,151 @@ function drupal_church_menu() {
 function drupal_church_test() {
   print 'HI';
 
-  //drupal_church_era_callback('church_people', 'title', '*', 'p');
+__create_inge_family();
+}
 
-  $query = new EntityFieldQuery();
-  $query->entityCondition('entity_type', 'church_people');
-  $query->propertyCondition('title', '%p%', 'LIKE');
-  print_r($query->execute());
+function __create_inge_family() {
+
+  //DAD
+  $p->is_new = TRUE;
+  $p->type = 'member';
+  $p->uid = 1;
+  $p->field_person_gender['und'][0]['value'] = 'male';
+  $p->field_name['und'][0]['given'] = 'Andrew';
+  $p->field_name['und'][0]['middle'] = 'Vaiden';
+  $p->field_name['und'][0]['family'] = 'Inge';
+
+  church_people_save($p);
+
+  //MOM
+  unset($p);
+  $p->is_new = TRUE;
+  $p->type = 'member';
+  $p->uid = 1;
+  $p->field_person_gender['und'][0]['value'] = 'female';
+  $p->field_name['und'][0]['given'] = 'Arteve';
+  $p->field_name['und'][0]['middle'] = '';
+  $p->field_name['und'][0]['family'] = 'Inge';
+
+  church_people_save($p);
+
+  //Sara
+  unset($p);
+  $p->is_new = TRUE;
+  $p->type = 'member';
+  $p->uid = 1;
+  $p->field_person_gender['und'][0]['value'] = 'female';
+  $p->field_name['und'][0]['given'] = 'Sara';
+  $p->field_name['und'][0]['middle'] = 'Arteve';
+  $p->field_name['und'][0]['family'] = 'Inge';
+
+  church_people_save($p);
+
+  //Steve
+  unset($p);
+  $p->is_new = TRUE;
+  $p->type = 'member';
+  $p->uid = 1;
+  $p->field_person_gender['und'][0]['value'] = 'male';
+  $p->field_name['und'][0]['given'] = 'Steven';
+  $p->field_name['und'][0]['middle'] = 'Arthur';
+  $p->field_name['und'][0]['family'] = 'Inge';
+
+  church_people_save($p);
+
+  //Pete
+  unset($p);
+  $p->is_new = TRUE;
+  $p->type = 'member';
+  $p->uid = 1;
+  $p->field_person_gender['und'][0]['value'] = 'male';
+  $p->field_name['und'][0]['given'] = 'Pete';
+  $p->field_name['und'][0]['middle'] = 'Andrew';
+  $p->field_name['und'][0]['family'] = 'Inge';
+
+  church_people_save($p);
+
+  //Pam
+  unset($p);
+  $p->is_new = TRUE;
+  $p->type = 'member';
+  $p->uid = 1;
+  $p->field_person_gender['und'][0]['value'] = 'female';
+  $p->field_name['und'][0]['given'] = 'Pam';
+  $p->field_name['und'][0]['middle'] = '';
+  $p->field_name['und'][0]['family'] = 'Inge';
+
+  church_people_save($p);
+
+  //Brandon
+  unset($p);
+  $p->is_new = TRUE;
+  $p->type = 'member';
+  $p->uid = 1;
+  $p->field_person_gender['und'][0]['value'] = 'male';
+  $p->field_name['und'][0]['given'] = 'Brandon';
+  $p->field_name['und'][0]['middle'] = '';
+  $p->field_name['und'][0]['family'] = 'Lynn';
+
+  church_people_save($p);
+
+  //Carrie
+  unset($p);
+  $p->is_new = TRUE;
+  $p->type = 'member';
+  $p->uid = 1;
+  $p->field_person_gender['und'][0]['value'] = 'female';
+  $p->field_name['und'][0]['given'] = 'Carrie';
+  $p->field_name['und'][0]['middle'] = '';
+  $p->field_name['und'][0]['family'] = 'Inge';
+
+  church_people_save($p);
+
+  //Vaiden
+  unset($p);
+  $p->is_new = TRUE;
+  $p->type = 'member';
+  $p->uid = 1;
+  $p->field_person_gender['und'][0]['value'] = 'male';
+  $p->field_name['und'][0]['given'] = 'Vaiden';
+  $p->field_name['und'][0]['middle'] = 'James';
+  $p->field_name['und'][0]['family'] = 'Inge';
+
+  church_people_save($p);
+
+  //Bill
+  unset($p);
+  $p->is_new = TRUE;
+  $p->type = 'member';
+  $p->uid = 1;
+  $p->field_person_gender['und'][0]['value'] = 'male';
+  $p->field_name['und'][0]['given'] = 'Bill';
+  $p->field_name['und'][0]['middle'] = '';
+  $p->field_name['und'][0]['family'] = 'Hedrick';
+
+  church_people_save($p);
+
+  //Ricky
+  unset($p);
+  $p->is_new = TRUE;
+  $p->type = 'member';
+  $p->uid = 1;
+  $p->field_person_gender['und'][0]['value'] = 'male';
+  $p->field_name['und'][0]['given'] = 'Ricky';
+  $p->field_name['und'][0]['middle'] = '';
+  $p->field_name['und'][0]['family'] = 'Lynn';
+
+  church_people_save($p);
+
+  //Adam
+  unset($p);
+  $p->is_new = TRUE;
+  $p->type = 'member';
+  $p->uid = 1;
+  $p->field_person_gender['und'][0]['value'] = 'male';
+  $p->field_name['und'][0]['given'] = 'Adam';
+  $p->field_name['und'][0]['middle'] = '';
+  $p->field_name['und'][0]['family'] = 'Lynn';
+
+  church_people_save($p);
 }

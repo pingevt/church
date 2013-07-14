@@ -14,7 +14,7 @@ define("CHURCH_FAMILY_PARTNERED",   4);
 define("CHURCH_FAMILY_PARTNERED_LABEL",   'Partnered');
 
 /**
- * Implements hook_entity_property_info_alter() on top of book module.
+ * Implements hook_entity_property_info_alter().
  * @see entity_metadata_entity_property_info_alter()
  */
 function church_family_entity_property_info_alter(&$info) {
@@ -62,7 +62,7 @@ function church_family_form_alter(&$form, &$form_state, $form_id) {
     $form['actions']['submit']['#submit'][] = '_church_people_form_family_submit';
 
     if(!isset($form_state['howmany_spouses'])) {
-      if($form['#entity']->church_family_spouses) $form_state['howmany_spouses'] = count((array)$form['#entity']->church_family_spouses) + 1;
+      if(isset($form['#entity']->church_family_spouses)) $form_state['howmany_spouses'] = count((array)$form['#entity']->church_family_spouses) + 1;
       else $form_state['howmany_spouses'] = 1;
     }
     $num_of_spouses = $form_state['howmany_spouses'];

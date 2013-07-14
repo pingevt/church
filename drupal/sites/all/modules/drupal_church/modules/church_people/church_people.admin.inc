@@ -197,8 +197,6 @@ function church_people_form_validate($form, &$form_state) {
 function church_people_form_submit($form, &$form_state) {
   $church_people = $form_state['church_people'];
 
-  $church_people->title = $form_state['values']['field_name']['und'][0]['given'] .' '. $form_state['values']['field_name']['und'][0]['family'];
-
   entity_form_submit_build_entity('church_people', $church_people, $form, $form_state);
 
   church_people_save($church_people);
@@ -217,6 +215,15 @@ function church_people_form_submit_delete($form, &$form_state) {
   $church_people = $form_state['church_people'];
   $church_people_uri = entity_uri('church_people', $church_people);
   $form_state['redirect'] = $church_people_uri['path'] . '/delete';
+}
+
+/*
+ * Implements hook_church_people_presave()
+ */
+function church_people_church_people_presave($church_people) {
+  $church_people->title = $church_people->field_name['und'][0]['given'] .' '. $church_people->field_name['und'][0]['family'];
+
+  return $church_people;
 }
 
 /**
