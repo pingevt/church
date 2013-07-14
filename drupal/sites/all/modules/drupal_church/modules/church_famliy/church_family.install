@@ -30,22 +30,33 @@ function church_family_schema() {
     ),
   );
 
-  $schema['church_children'] = array(
+  $schema['church_family_children'] = array(
     'description' => 'Parent-child relationships',
     'fields' => array(
-      'parent_cpid' => array(
-        'description' => 'The uid of the parent',
-        'type' => 'int',
-        'not null' => TRUE,
-      ),
       'child_cpid' => array(
         'description' => 'The uid of the child',
         'type' => 'int',
         'not null' => TRUE,
       ),
+      'paternal_cpid' => array(
+        'description' => 'The uid of the father',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'maternal_cpid' => array(
+        'description' => 'The uid of the mother',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+    ),
+    'primary key' => array('child_cpid'),
+    'unique keys' => array(
+      'parents_u' => array('paternal_cpid', 'maternal_cpid'),
     ),
     'indexes' => array(
-      'parents' => array('parent_cpid'),
+      'parents' => array('paternal_cpid', 'maternal_cpid'),
     ),
   );
 

@@ -79,7 +79,7 @@ function church_people_type_form_submit_delete(&$form, &$form_state) {
 function church_people_type_form_delete_confirm($form, &$form_state, $church_people_type) {
   $form_state['church_people_type'] = $church_people_type;
   // Always provide entity id in the same form key as in the entity edit form.
-  $form['church_people_id'] = array('#type' => 'value', '#value' => entity_id('church_people_type' ,$church_people_type));
+  $form['church_people_id'] = array('#type' => 'value', '#value' => entity_id('church_people_type', $church_people_type));
   return confirm_form($form,
     t('Are you sure you want to delete people type %title?', array('%title' => entity_label('church_people_type', $church_people_type))),
     'admin/church/configure/people-types/' . entity_id('church_people_type', $church_people_type),
@@ -221,7 +221,7 @@ function church_people_form_submit_delete($form, &$form_state) {
  * Implements hook_church_people_presave()
  */
 function church_people_church_people_presave($church_people) {
-  $church_people->title = $church_people->field_name['und'][0]['given'] .' '. $church_people->field_name['und'][0]['family'];
+  $church_people->title = $church_people->field_name['und'][0]['given'] . ' ' . $church_people->field_name['und'][0]['family'];
 
   return $church_people;
 }
@@ -232,7 +232,7 @@ function church_people_church_people_presave($church_people) {
 function church_people_delete_form($form, &$form_state, $church_people) {
   $form_state['church_people'] = $church_people;
   // Always provide entity id in the same form key as in the entity edit form.
-  $form['church_people_id'] = array('#type' => 'value', '#value' => entity_id('church_people' ,$church_people));
+  $form['church_people_id'] = array('#type' => 'value', '#value' => entity_id('church_people', $church_people));
   $church_people_uri = entity_uri('church_people', $church_people);
   return confirm_form($form,
     t('Are you sure you want to delete people %title?', array('%title' => entity_label('church_people', $church_people))),

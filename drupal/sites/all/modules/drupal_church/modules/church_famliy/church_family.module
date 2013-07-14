@@ -53,69 +53,111 @@ function entity_property_church_people_church_family_children($data, array $opti
   }
 }
 
+/**
+ * Implements hook_form_alter().
+ */
 function church_family_form_alter(&$form, &$form_state, $form_id) {
-
   if ($form_id == 'church_people_form') {
 
     //add validate and submit handlers
     $form['#validate'][] = '_church_people_form_family_validate';
     $form['actions']['submit']['#submit'][] = '_church_people_form_family_submit';
 
+    //SPOUSES
+    //check number of spouse fields needed
+    if(!isset($form_state['church_family_spouses_remove'])) {
+      $form_state['church_family_spouses_remove'] = array();
+    }
     if(!isset($form_state['howmany_spouses'])) {
       if(isset($form['#entity']->church_family_spouses)) $form_state['howmany_spouses'] = count((array)$form['#entity']->church_family_spouses) + 1;
       else $form_state['howmany_spouses'] = 1;
     }
     $num_of_spouses = $form_state['howmany_spouses'];
 
+    //visibility of children fieldset
+    $form['church_family_spouses_visibility'] = array(
+      '#type' => 'checkbox',
+      '#weight' => 49,
+      '#title' => t('Has spouse'),
+    );
+    if($num_of_spouses > 1) {
+      $form['church_family_spouses_visibility']['#default_value'] = TRUE;
+    }
+
+    //spouse fieldset
     $form['church_family_spouses'] = array(
       '#type' => 'fieldset',
-      '#weight' => 100,
+      '#weight' => 50,
       '#title' => t('Spouses'),
       '#prefix' => '<div id="church-family-spouses-wrapper">',
       '#suffix' => '</div>',
       '#tree' => TRUE,
+      '#states' => array(
+        // Hide the fieldset when the cancel notify checkbox is disabled.
+        'invisible' => array(
+         ':input[name="church_family_spouses_visibility"]' => array('checked' => FALSE),
+        ),
+      ),
     );
 
-
+    //spouse fields
     for ($i = 1; $i <= $num_of_spouses; $i++) {
 
       unset($person);
-      if (isset($form['#entity']->church_family_spouses[($i-1)])) {
-        $person = church_people_load($form['#entity']->church_family_spouses[($i-1)]['spouse']);
+
+      if(!in_array($i, $form_state['church_family_spouses_remove'])) {
+        if (isset($form['#entity']->church_family_spouses[($i-1)])) {
+          $person = church_people_load($form['#entity']->church_family_spouses[($i-1)]['spouse']);
+        }
+
+        $form['church_family_spouses']['spouse_'.$i] = array(
+          '#type' => 'fieldset',
+          '#weight' => (1 + $i),
+        );
+        $form['church_family_spouses']['spouse_'.$i]['church_family_spouse_person'] = array(
+          '#type' => 'drupal_church_entityreference',
+          '#title' => t('Spouse'),
+          '#weight' => 100,
+          '#era_entity_type' => 'church_people', // Mandatory.
+          '#era_bundles' => FALSE,      // Optional (Any bundle by default).
+          '#era_cardinality' => 1,      // Optional (1 By default).
+          '#era_column' => 'title',       // Optional (label By default).
+
+          '#default_value' => (empty($person)) ? NULL : $person->title . ' (' . $form['#entity']->church_family_spouses[($i-1)]['spouse'] . ')',
+        );
+        $form['church_family_spouses']['spouse_'.$i]['church_family_spouse_label'] = array(
+          '#type' => 'select',
+          '#title' => t('Status'),
+          '#weight' => 101,
+          '#options' => array(
+            -1 => '--',
+            CHURCH_FAMILY_MARRIED => CHURCH_FAMILY_MARRIED_LABEL,
+            CHURCH_FAMILY_WIDOWED => CHURCH_FAMILY_WIDOWED_LABEL,
+            CHURCH_FAMILY_DIVORCED => CHURCH_FAMILY_DIVORCED_LABEL,
+            CHURCH_FAMILY_ENGAGED => CHURCH_FAMILY_ENGAGED_LABEL,
+            CHURCH_FAMILY_PARTNERED => CHURCH_FAMILY_PARTNERED_LABEL,
+          ),
+          '#default_value' => (empty($person)) ? -1 : $form['#entity']->church_family_spouses[($i-1)]['status'],
+        );
+        $form['church_family_spouses']['spouse_'.$i]['remove_spouse'] = array(
+          '#type' => 'submit',
+          '#value' => t('Remove'),
+          '#submit' => array('church_family_remove_spouse_submit'),
+          '#weight' => 200,
+          '#name' => 'church_family_spouses_remove_spouse_' . $i,
+          // See the examples in ajax_example.module for more details on the
+          // properties of #ajax.
+          '#ajax' => array(
+            'callback' => 'church_family_remove_spouse',
+            'wrapper' => 'church-family-spouses-wrapper',
+            'method' => 'replace',
+            'effect' => 'fade',
+          ),
+        );
       }
-
-      $form['church_family_spouses']['spouse_'.$i] = array(
-        '#type' => 'fieldset',
-        '#weight' => (1 + $i),
-      );
-      $form['church_family_spouses']['spouse_'.$i]['church_family_spouse_person'] = array(
-        '#type' => 'drupal_church_entityreference',
-        '#title' => t('Spouse'),
-        '#weight' => 100,
-        '#era_entity_type' => 'church_people', // Mandatory.
-        '#era_bundles' => FALSE,      // Optional (Any bundle by default).
-        '#era_cardinality' => 1,      // Optional (1 By default).
-        '#era_column' => 'title',       // Optional (label By default).
-
-        '#default_value' => (empty($person)) ? NULL : $person->title . ' (' . $form['#entity']->church_family_spouses[($i-1)]['spouse'] . ')',
-      );
-      $form['church_family_spouses']['spouse_'.$i]['church_family_spouse_label'] = array(
-        '#type' => 'select',
-        '#title' => t('Status'),
-        '#weight' => 101,
-        '#options' => array(
-          -1 => '--',
-          CHURCH_FAMILY_MARRIED => CHURCH_FAMILY_MARRIED_LABEL,
-          CHURCH_FAMILY_WIDOWED => CHURCH_FAMILY_WIDOWED_LABEL,
-          CHURCH_FAMILY_DIVORCED => CHURCH_FAMILY_DIVORCED_LABEL,
-          CHURCH_FAMILY_ENGAGED => CHURCH_FAMILY_ENGAGED_LABEL,
-          CHURCH_FAMILY_PARTNERED => CHURCH_FAMILY_PARTNERED_LABEL,
-        ),
-        '#default_value' => (empty($person)) ? -1 : $form['#entity']->church_family_spouses[($i-1)]['status'],
-      );
     }
 
-    //add button
+    //spouse add button
     $form['church_family_spouses']['add_spouse'] = array(
       '#type' => 'submit',
       '#value' => t('Add one more'),
@@ -132,23 +174,144 @@ function church_family_form_alter(&$form, &$form_state, $form_id) {
       ),
     );
 
+
+
+    //CHILDREN
+    //check number of children
+    if(!isset($form_state['howmany_children'])) {
+      if(isset($form['#entity']->church_family_children)) $form_state['howmany_children'] = count((array)$form['#entity']->church_family_children) + 1;
+      else $form_state['howmany_children'] = 1;
+    }
+    $num_of_children = $form_state['howmany_children'];
+
+    //visibility of children fieldset
+    $form['church_family_children_visibility'] = array(
+      '#type' => 'checkbox',
+      '#weight' => 51,
+      '#title' => t('Has children'),
+    );
+
+    if($num_of_children > 1) {
+      $form['church_family_children_visibility']['#default_value'] = TRUE;
+    }
+
+    //children fieldset
+    $form['church_family_children'] = array(
+      '#type' => 'fieldset',
+      '#weight' => 52,
+      '#title' => t('Children'),
+      '#prefix' => '<div id="church-family-children-wrapper">',
+      '#suffix' => '</div>',
+      '#tree' => TRUE,
+      '#states' => array(
+      // Hide the fieldset when the cancel notify checkbox is disabled.
+      'invisible' => array(
+         ':input[name="church_family_children_visibility"]' => array('checked' => FALSE),
+        ),
+      ),
+    );
+
+    //children fields
+    for ($i = 1; $i <= $num_of_children; $i++) {
+
+      unset($person);
+      if (isset($form['#entity']->church_family_children[($i-1)])) {
+        $person = church_people_load($form['#entity']->church_family_children[($i-1)]['child']);
+      }
+
+      $form['church_family_children']['child_'.$i] = array(
+        '#type' => 'fieldset',
+        '#weight' => (1 + $i),
+      );
+      $form['church_family_children']['child_'.$i]['church_family_children_person'] = array(
+        '#type' => 'drupal_church_entityreference',
+        '#title' => t('Child'),
+        '#weight' => 100,
+        '#era_entity_type' => 'church_people', // Mandatory.
+        '#era_bundles' => FALSE,      // Optional (Any bundle by default).
+        '#era_cardinality' => 1,      // Optional (1 By default).
+        '#era_column' => 'title',       // Optional (label By default).
+
+        '#default_value' => (empty($person)) ? NULL : $person->title . ' (' . $form['#entity']->church_family_children[($i-1)]['child'] . ')',
+      );
+    }
+
+    $form['church_family_children']['add_child'] = array(
+      '#type' => 'submit',
+      '#value' => t('Add one more'),
+      '#submit' => array('church_family_add_more_children_submit'),
+      '#name' => 'add_more_children',
+      '#weight' => 200,
+      // See the examples in ajax_example.module for more details on the
+      // properties of #ajax.
+      '#ajax' => array(
+        'callback' => 'church_family_add_more_children',
+        'wrapper' => 'church-family-children-wrapper',
+        'method' => 'replace',
+        'effect' => 'fade',
+      ),
+    );
   }
 }
 
+function church_family_remove_spouse_submit($form, &$form_state) {
+  $i = explode('_', $form_state['triggering_element']['#name']);
+  $form_state['church_family_spouses_remove'][] = $i[(count($i)-1)];
+  $form_state['rebuild'] = TRUE;
+}
+
+function church_family_remove_spouse($form, &$form_state) {
+  return $form['church_family_spouses'];
+}
+
+/**
+ * Submit handler for the "add-one-more" button.
+ *
+ * Increments the max counter and causes a rebuild.
+ */
 function church_family_add_more_spouses_submit($form, &$form_state) {
   $form_state['howmany_spouses']++;
   $form_state['rebuild'] = TRUE;
 }
 
+/**
+ * Callback for ajax-enabled add_more_spouses button.
+ *
+ * Selects and returns the fieldset with the spouses in it.
+ */
 function church_family_add_more_spouses($form, &$form_state) {
   return $form['church_family_spouses'];
 }
+
+/**
+ * Submit handler for the "add-one-more" button.
+ *
+ * Increments the max counter and causes a rebuild.
+ */
+function church_family_add_more_children_submit($form, &$form_state) {
+  $form_state['howmany_children']++;
+  $form_state['rebuild'] = TRUE;
+}
+
+/**
+ * Callback for ajax-enabled add_more_children button.
+ *
+ * Selects and returns the fieldset with the children in it.
+ */
+function church_family_add_more_children($form, &$form_state) {
+  return $form['church_family_children'];
+}
+
 
 function _church_people_form_family_validate(&$form, &$form_state) {
 
 }
 
 function _church_people_form_family_submit(&$form, &$form_state) {
+
+//print '<pre>';
+//print_r($form_state['values']);
+//die();
 
   $person = $form_state['church_people'];
   $pw = entity_metadata_wrapper('church_people', $person);
@@ -159,32 +322,63 @@ function _church_people_form_family_submit(&$form, &$form_state) {
     'female' => 'maternal_cpid',
   );
 
+  //SPOUSES
   //clear all records
   $query = 'DELETE FROM {church_family_spouse} WHERE ' . $cols[$gender] . ' = :cpid';
   db_query($query, array(':cpid' => $pw->cpid->value()));
 
-  foreach ($form_state['values']['church_family_spouses'] AS $spouse) {
-    if (is_array($spouse) && is_array($spouse['church_family_spouse_person'])) {
+  if ($form_state['values']['church_family_spouses_visibility'] == TRUE) {
+    foreach ($form_state['values']['church_family_spouses'] AS $spouse) {
+      if (is_array($spouse) && is_array($spouse['church_family_spouse_person'])) {
 
-      $q = db_insert('church_family_spouse');
+        $q = db_insert('church_family_spouse');
 
-      $query = "INSERT INTO {church_family_spouse} SET (paternal_cpid, maternal_cpid, relationship_status) VALUES (";
-      if ($gender == 'male') {
-        $q->fields(array(
-          'paternal_cpid' => $pw->cpid->value(),
-          'maternal_cpid' => $spouse['church_family_spouse_person']['entity_id'],
-          'relationship_status' => $spouse['church_family_spouse_label'],
-        ));
+        $query = "INSERT INTO {church_family_spouse} SET (paternal_cpid, maternal_cpid, relationship_status) VALUES (";
+        if ($gender == 'male') {
+          $q->fields(array(
+            'paternal_cpid' => $pw->cpid->value(),
+            'maternal_cpid' => $spouse['church_family_spouse_person']['entity_id'],
+            'relationship_status' => $spouse['church_family_spouse_label'],
+          ));
+        }
+        else {
+          $q->fields(array(
+            'paternal_cpid' => $spouse['church_family_spouse_person']['entity_id'] ,
+            'maternal_cpid' => $pw->cpid->value(),
+            'relationship_status' => $spouse['church_family_spouse_label'],
+          ));
+        }
+
+        $q->execute();
       }
-      else {
-        $q->fields(array(
-          'paternal_cpid' => $spouse['church_family_spouse_person']['entity_id'] ,
-          'maternal_cpid' => $pw->cpid->value(),
-          'relationship_status' => $spouse['church_family_spouse_label'],
-        ));
-      }
+    }
+  }
 
-      $q->execute();
+  //CHILDREN
+  //clear records
+  $query = 'UPDATE {church_family_children} SET ' . $cols[$gender] . ' = 0 WHERE ' . $cols[$gender] . ' = :cpid ';
+  db_query($query, array(':cpid' => $pw->cpid->value()));
+
+  if ($form_state['values']['church_family_children_visibility'] == TRUE) {
+    foreach ($form_state['values']['church_family_children'] AS $child) {
+      if (is_array($child) && is_array($child['church_family_children_person'])) {
+
+        $q = db_merge('church_family_children')
+              ->key(array('child_cpid' => $child['church_family_children_person']['entity_id']));
+        if ($gender == 'male') {
+          $q->fields(array(
+            'paternal_cpid' => $pw->cpid->value(),
+          ));
+        }
+        else {
+          $q->fields(array(
+            'maternal_cpid' => $pw->cpid->value(),
+          ));
+        }
+
+        $q->execute();
+
+      }
     }
   }
 }
@@ -219,7 +413,11 @@ function church_family_church_people_load(array $people) {
       );
     }
 
-    $children_result = db_query('SELECT * FROM {church_children} WHERE parent_cpid = :cpid', array( ':cpid' => $cpid));
+    if ($person_gender == 'male') {
+      $children_result = db_query('SELECT * FROM {church_family_children} WHERE paternal_cpid = :cpid', array( ':cpid' => $cpid));
+    } else {
+      $children_result = db_query('SELECT * FROM {church_family_children} WHERE maternal_cpid = :cpid', array( ':cpid' => $cpid));
+    }
 
     foreach ($children_result as $record) {
       $person->church_family_children[] = array(

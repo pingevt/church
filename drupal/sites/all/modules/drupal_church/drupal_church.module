@@ -45,9 +45,10 @@ function drupal_church_menu() {
 function drupal_church_test() {
   print 'HI';
 
-__create_inge_family();
+//__create_inge_family();
 }
 
+//Auto creation of a few users
 function __create_inge_family() {
 
   //DAD

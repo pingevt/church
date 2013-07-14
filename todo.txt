@@ -22,5 +22,7 @@ TODO
 
 - add remove button for lists of spouses and children
 
+- should I change no parent in DB from 0 to NULL?? for church_family, children?
+
 
 - permissions for church module
