@@ -8,7 +8,7 @@ include_once 'church_people.features.inc';
 function church_people_entity_info() {
   $return = array(
     'church_people' => array(
-      'label' => t('People'),
+      'label' => t('Church people'),
       'entity class' => 'ChurchPeople',
       'controller class' => 'ChurchPeopleController',
       'base table' => 'church_people',
@@ -43,7 +43,7 @@ function church_people_entity_info() {
   );
 
   $return['church_people_type'] = array(
-    'label' => t('People Type'),
+    'label' => t('Church people type'),
     'entity class' => 'ChurchPeopleType',
     'controller class' => 'ChurchPeopleTypeController',
     'base table' => 'church_people_type',
