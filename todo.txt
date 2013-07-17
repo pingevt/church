@@ -1,5 +1,9 @@
 TODO
 
+DRUPAL CHURCH
+=============
+- permissions for church module
+
 - fix menu order and items under Church
 ========================================
 -Church
@@ -16,13 +20,24 @@ TODO
 
 ========================================
 
-- DOB field, better years
+
+
+CHURCH_PEOPLE
+=============
 - phone field, add cell
 - actual view of person
-
 - add remove button for lists of spouses and children
-
 - should I change no parent in DB from 0 to NULL?? for church_family, children?
+- add filters to view to sort people
+- family view (possible url(admin/church/family/[parent-cpid])
+  - add all spouses and children
 
 
-- permissions for church module
+
+CHURCH_GATHERING
+================
+- create a plan
+
+
+
+
